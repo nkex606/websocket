@@ -32,9 +32,6 @@ func connect() {
 		log.Println("Quit chat")
 		close(forever)
 	}()
-
-	go read(conn)
-	go send(conn)
 }
 
 func (c *client) reader() {
@@ -86,26 +83,4 @@ func wsHanlder(serv *server, w http.ResponseWriter, r *http.Request) {
 
 	go c.reader()
 	go c.sender()
-}
-
-func read(conn *websocket.Conn) {
-	for {
-		_, p, err := conn.ReadMessage()
-		if err != nil {
-			log.Println(err)
-		}
-		fmt.Print("server: ", string(p))
-	}
-}
-
-func send(conn *websocket.Conn) {
-	reader := bufio.NewReader(os.Stdin)
-	for {
-
-		text, _ := reader.ReadString('\n')
-		if err := conn.WriteMessage(websocket.TextMessage, []byte(text)); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Print("you: ", string(text))
-	}
 }
