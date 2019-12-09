@@ -25,7 +25,7 @@ func main() {
 
 	if mode == "server" {
 		s := newServer()
-		go s.run()
+		go s.start()
 
 		http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 			wsHanlder(s, w, r)
@@ -33,6 +33,9 @@ func main() {
 		log.Println("Start listening on port 8080...")
 		log.Fatal(http.ListenAndServe(":8080", nil))
 	} else {
-
+		forever = make(chan struct{})
+		// c := newClient("test")
+		go connect()
+		<-forever
 	}
 }

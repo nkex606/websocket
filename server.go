@@ -9,7 +9,6 @@ type server struct {
 	clients      map[*client]struct{}
 	connected    chan *client
 	disconnected chan *client
-	broadcast    chan []byte
 }
 
 func newServer() *server {
@@ -17,12 +16,11 @@ func newServer() *server {
 		clients:      make(map[*client]struct{}),
 		connected:    make(chan *client),
 		disconnected: make(chan *client),
-		broadcast:    make(chan []byte),
 	}
 	return s
 }
 
-func (s *server) run() {
+func (s *server) start() {
 	for {
 		select {
 		case client := <-s.connected:
@@ -32,7 +30,6 @@ func (s *server) run() {
 			log.Println("A client disconnect.")
 			delete(s.clients, client)
 		}
-
 		fmt.Println(s.clients)
 	}
 }
