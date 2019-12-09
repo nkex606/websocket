@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
 
 	"github.com/gorilla/websocket"
 )
@@ -17,36 +16,18 @@ type client struct {
 	send chan []byte
 }
 
-func connect() {
-	conn, _, err := websocket.DefaultDialer.Dial("ws://127.0.0.1:8080/ws", nil)
-	if err != nil {
-		log.Fatal("dial:", err)
-	}
-	log.Println("Connected!")
-
-	sigint := make(chan os.Signal, 1)
-	signal.Notify(sigint, os.Interrupt)
-	go func() {
-		<-sigint
-		conn.Close()
-		log.Println("Quit chat")
-		close(forever)
-	}()
-}
-
 func (c *client) reader() {
 	defer func() {
 		c.serv.disconnected <- c
 		c.conn.Close()
 	}()
 	for {
-
 		_, p, err := c.conn.ReadMessage()
 		if err != nil {
 			log.Fatal("read err: ", err.Error())
 			return
 		}
-		fmt.Print("server: ", string(p))
+		fmt.Print("client: ", string(p))
 	}
 }
 

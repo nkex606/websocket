@@ -34,8 +34,8 @@ func main() {
 		log.Fatal(http.ListenAndServe(":8080", nil))
 	} else {
 		forever = make(chan struct{})
-		// c := newClient("test")
-		go connect()
+		u := newUser()
+		u.dial()
 		<-forever
 	}
 }
