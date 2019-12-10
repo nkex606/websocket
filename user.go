@@ -31,7 +31,7 @@ func (u *user) dial() {
 		sigint := make(chan os.Signal, 1)
 		signal.Notify(sigint, os.Interrupt)
 		log.Println("===>", <-sigint)
-		// TODO: notify server disconnect
+		u.conn.Close()
 		close(forever)
 	}()
 
@@ -40,23 +40,21 @@ func (u *user) dial() {
 }
 
 func (u *user) read() {
-	defer u.conn.Close()
 	for {
 		_, p, err := u.conn.ReadMessage()
 		if err != nil {
-			log.Println(err)
+			break
 		}
 		fmt.Print("server: ", string(p))
 	}
 }
 
 func (u *user) send() {
-	defer u.conn.Close()
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		text, _ := reader.ReadString('\n')
 		if err := u.conn.WriteMessage(websocket.TextMessage, []byte(text)); err != nil {
-			log.Fatal(err)
+			break
 		}
 		fmt.Print("you: ", string(text))
 	}

@@ -26,6 +26,7 @@ func main() {
 	if mode == "server" {
 		s := newServer()
 		go s.start()
+		go s.broadcast()
 
 		http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 			wsHanlder(s, w, r)

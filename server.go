@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"os"
+
+	"github.com/gorilla/websocket"
 )
 
 type server struct {
@@ -30,6 +34,19 @@ func (s *server) start() {
 			log.Println("A client disconnect.")
 			delete(s.clients, client)
 		}
-		fmt.Println(s.clients)
+	}
+}
+
+func (s *server) broadcast() {
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		text, _ := reader.ReadString('\n')
+		for client := range s.clients {
+			if err := client.conn.WriteMessage(websocket.TextMessage, []byte(text)); err != nil {
+				log.Fatal("broadcast err: ", err.Error())
+				break
+			}
+		}
+		fmt.Print("broadcast: ", string(text))
 	}
 }

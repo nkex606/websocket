@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/websocket"
 )
@@ -24,28 +22,26 @@ func (c *client) reader() {
 	for {
 		_, p, err := c.conn.ReadMessage()
 		if err != nil {
-			log.Fatal("read err: ", err.Error())
-			return
+			// log.Fatal("read err: ", err.Error())
+			break
 		}
 		fmt.Print("client: ", string(p))
 	}
 }
 
-func (c *client) sender() {
-	defer func() {
-		c.conn.Close()
-	}()
-	reader := bufio.NewReader(os.Stdin)
-	for {
+// func (c *client) sender() {
+// 	defer c.conn.Close()
 
-		text, _ := reader.ReadString('\n')
-		if err := c.conn.WriteMessage(websocket.TextMessage, []byte(text)); err != nil {
-			log.Fatal("send err: ", err.Error())
-			return
-		}
-		fmt.Print("you: ", string(text))
-	}
-}
+// 	reader := bufio.NewReader(os.Stdin)
+// 	for {
+// 		text, _ := reader.ReadString('\n')
+// 		if err := c.conn.WriteMessage(websocket.TextMessage, []byte(text)); err != nil {
+// 			log.Fatal("send err: ", err.Error())
+// 			break
+// 		}
+// 		fmt.Print("you: ", string(text))
+// 	}
+// }
 
 func wsHanlder(serv *server, w http.ResponseWriter, r *http.Request) {
 	// server side conn
@@ -63,5 +59,5 @@ func wsHanlder(serv *server, w http.ResponseWriter, r *http.Request) {
 	c.serv.connected <- c
 
 	go c.reader()
-	go c.sender()
+	// go c.sender()
 }
