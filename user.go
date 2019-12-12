@@ -45,7 +45,7 @@ func (u *user) read() {
 		if err != nil {
 			break
 		}
-		fmt.Print("server: ", string(p))
+		fmt.Print(string(p))
 	}
 }
 
@@ -56,6 +56,5 @@ func (u *user) send() {
 		if err := u.conn.WriteMessage(websocket.TextMessage, []byte(text)); err != nil {
 			break
 		}
-		fmt.Print("you: ", string(text))
 	}
 }

@@ -22,26 +22,24 @@ func (c *client) reader() {
 	for {
 		_, p, err := c.conn.ReadMessage()
 		if err != nil {
-			// log.Fatal("read err: ", err.Error())
 			break
 		}
 		fmt.Print("client: ", string(p))
+		c.serv.broadcastCh <- p
 	}
 }
 
-// func (c *client) sender() {
-// 	defer c.conn.Close()
-
-// 	reader := bufio.NewReader(os.Stdin)
-// 	for {
-// 		text, _ := reader.ReadString('\n')
-// 		if err := c.conn.WriteMessage(websocket.TextMessage, []byte(text)); err != nil {
-// 			log.Fatal("send err: ", err.Error())
-// 			break
-// 		}
-// 		fmt.Print("you: ", string(text))
-// 	}
-// }
+func (c *client) writer() {
+	defer c.conn.Close()
+	for {
+		select {
+		case msg := <-c.send:
+			if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+				break
+			}
+		}
+	}
+}
 
 func wsHanlder(serv *server, w http.ResponseWriter, r *http.Request) {
 	// server side conn
@@ -59,5 +57,5 @@ func wsHanlder(serv *server, w http.ResponseWriter, r *http.Request) {
 	c.serv.connected <- c
 
 	go c.reader()
-	// go c.sender()
+	go c.writer()
 }
